@@ -108,8 +108,60 @@ def CSP_Notification():
         return Request
 
 
+def NJU_AISchool():
+    Name = '南大人工智能学院'
+    Url = 'https://ai.nju.edu.cn/17810/list.htm'
+    Request = GetFromUrl(Url)
+    if type(Request) != str:
+        BufferDB = connect('buffer')
+        ToastCollection = []
+        for Item in Request.find_all('span', {'class': 'news_title'}):
+            WriteName = Item.text.strip()
+            WriteHref = 'https://ai.nju.edu.cn' + Item.a.attrs['href']
+            BufferTable = BufferDB.execute('select Name from NJU_AISchool_Buffer')
+            for BufferRow in BufferTable:
+                if WriteName == BufferRow[0]:
+                    break
+            else:
+                BufferDB.execute("insert into NJU_AISchool_Buffer (Name, Href) \
+                VALUES ('{}', '{}')".format(WriteName, WriteHref))
+                BufferDB.commit()
+                ToastCollection.append(['Inspection - {}'.format(Name), '已发现更新: {}'.format(WriteName), WriteHref])
+        BufferDB.close()
+        return ToastCollection
+    else:
+        return Request
+
+
+def NJU_Graduate():
+    Name = '南大研究生院'
+    Url = 'https://grawww.nju.edu.cn/912/list.htm'
+    Request = GetFromUrl(Url)
+    if type(Request) != str:
+        BufferDB = connect('buffer')
+        ToastCollection = []
+        for Item in Request.find_all('span', {'class': 'Article_Title'}):
+            WriteName = Item.text.strip()
+            WriteHref = 'https://grawww.nju.edu.cn' + Item.a.attrs['href']
+            BufferTable = BufferDB.execute('select Name from NJU_Graduate_Buffer')
+            for BufferRow in BufferTable:
+                if WriteName == BufferRow[0]:
+                    break
+            else:
+                BufferDB.execute("insert into NJU_Graduate_Buffer (Name, Href) \
+                VALUES ('{}', '{}')".format(WriteName, WriteHref))
+                BufferDB.commit()
+                ToastCollection.append(['Inspection - {}'.format(Name), '已发现更新: {}'.format(WriteName), WriteHref])
+        BufferDB.close()
+        return ToastCollection
+    else:
+        return Request
+
+
 TaskList = [
     Gaokao_Scheme,
     Gaokao_Line,
-    CSP_Notification
+    CSP_Notification,
+    NJU_AISchool,
+    NJU_Graduate
 ]
